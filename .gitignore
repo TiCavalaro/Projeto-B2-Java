@@ -1,0 +1,17 @@
+# Eclipse
+.project
+.classpath
+.settings/
+bin/
+
+# Tomcat
+*.war
+*.log
+logs/
+
+# Arquivos temporários
+*.tmp
+*.swp
+
+# Mac/Linux
+.DS_Store
