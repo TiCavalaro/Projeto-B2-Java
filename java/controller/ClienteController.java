@@ -9,7 +9,7 @@ import javax.servlet.annotation.WebServlet;
 import java.io.IOException;
 import java.util.List;
 
-@WebServlet("/clientes") // <--- aqui mapeia a URL
+@WebServlet("/clientes") 
 public class ClienteController extends HttpServlet {
 
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
@@ -23,14 +23,24 @@ public class ClienteController extends HttpServlet {
                 List<Cliente> lista = dao.listar();
                 req.setAttribute("clientes", lista);
                 req.getRequestDispatcher("/clientes/list.jsp").forward(req, resp);
+
             } else if(action.equals("editar")) {
-                int id = Integer.parseInt(req.getParameter("id"));
-                Cliente c = dao.getClienteById(id);
+                String idParam = req.getParameter("id");
+                Cliente c = null;
+
+                if(idParam != null && !idParam.isEmpty()) {
+                    int id = Integer.parseInt(idParam);
+                    c = dao.getClienteById(id); // editar cliente existente
+                }
                 req.setAttribute("cliente", c);
                 req.getRequestDispatcher("/clientes/form.jsp").forward(req, resp);
+
             } else if(action.equals("deletar")) {
-                int id = Integer.parseInt(req.getParameter("id"));
-                dao.deletar(id);
+                String idParam = req.getParameter("id");
+                if(idParam != null && !idParam.isEmpty()) {
+                    int id = Integer.parseInt(idParam);
+                    dao.deletar(id);
+                }
                 resp.sendRedirect("clientes?action=listar");
             }
         } catch (Exception e) {
@@ -53,9 +63,9 @@ public class ClienteController extends HttpServlet {
 
         try {
             if(c.getId() == 0) {
-                dao.salvar(c);
+                dao.salvar(c);   
             } else {
-                dao.atualizar(c);
+                dao.atualizar(c); 
             }
             resp.sendRedirect("clientes?action=listar");
         } catch (Exception e) {
