@@ -87,4 +87,52 @@ public class ClienteDAO {
         conn.close();
         return lista;
     }
+    
+    
+    public Cliente getClienteByEmailAndSenha(String email, String senha) throws Exception {
+        Connection conn = ConnectionFactory.getConnection();
+        String sql = "SELECT * FROM cliente WHERE email=? AND senha=?";
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ps.setString(1, email);
+        ps.setString(2, senha);
+        ResultSet rs = ps.executeQuery();
+        Cliente c = null;
+        if(rs.next()) {
+            c = new Cliente(
+                rs.getInt("id"),
+                rs.getString("nome"),
+                rs.getString("email"),
+                rs.getString("senha"),
+                rs.getString("telefone")
+            );
+        }
+        rs.close();
+        ps.close();
+        conn.close();
+        return c;
+    }
+    
+    public Cliente getClienteByEmail(String email) throws Exception {
+        Connection conn = ConnectionFactory.getConnection();
+        String sql = "SELECT * FROM cliente WHERE email=?";
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ps.setString(1, email);
+        ResultSet rs = ps.executeQuery();
+        Cliente c = null;
+        if(rs.next()) {
+            c = new Cliente(
+                rs.getInt("id"),
+                rs.getString("nome"),
+                rs.getString("email"),
+                rs.getString("senha"),
+                rs.getString("telefone")
+            );
+        }
+        rs.close();
+        ps.close();
+        conn.close();
+        return c;
+    }
+
+
 }

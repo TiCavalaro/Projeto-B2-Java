@@ -12,10 +12,19 @@ import java.util.List;
 @WebServlet("/clientes")
 public class ClienteController extends HttpServlet {
 
+    @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
         String action = req.getParameter("action");
+
+        // --- BLOQUEIA ACESSO SE NÃO ESTIVER LOGADO, EXCETO PARA CADASTRO ---
+        if (req.getSession().getAttribute("usuarioLogado") == null
+                && (action == null || (!action.equals("editar") && !action.equals("novo")))) {
+            resp.sendRedirect("login.jsp");
+            return;
+        }
+
         ClienteDAO dao = new ClienteDAO();
 
         try {
@@ -23,22 +32,24 @@ public class ClienteController extends HttpServlet {
                 List<Cliente> lista = dao.listar();
                 req.setAttribute("clientes", lista);
 
-                // Captura mensagem de sessão (sucesso/erro)
+                // Mensagem de sucesso/erro da sessão
                 String msg = (String) req.getSession().getAttribute("msg");
-                if(msg != null) {
+                if (msg != null) {
                     req.setAttribute("msg", msg);
                     req.getSession().removeAttribute("msg");
                 }
 
                 req.getRequestDispatcher("/clientes/list.jsp").forward(req, resp);
 
-            } else if (action.equals("editar")) {
+            } else if (action.equals("editar") || action.equals("novo")) {
                 String idStr = req.getParameter("id");
                 Cliente c = null;
-                if(idStr != null && !idStr.isEmpty()) {
+
+                if (idStr != null && !idStr.isEmpty()) {
                     int id = Integer.parseInt(idStr);
                     c = dao.getClienteById(id);
                 }
+
                 req.setAttribute("cliente", c);
                 req.getRequestDispatcher("/clientes/form.jsp").forward(req, resp);
 
@@ -55,6 +66,7 @@ public class ClienteController extends HttpServlet {
         }
     }
 
+    @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
@@ -66,10 +78,16 @@ public class ClienteController extends HttpServlet {
         c.setSenha(req.getParameter("senha"));
         c.setTelefone(req.getParameter("telefone"));
 
+        // --- SOMENTE BLOQUEIA SE EDITAR CLIENTE EXISTENTE ---
+        if (c.getId() != 0 && req.getSession().getAttribute("usuarioLogado") == null) {
+            resp.sendRedirect("login.jsp");
+            return;
+        }
+
         ClienteDAO dao = new ClienteDAO();
 
         try {
-            if(c.getId() == 0) {
+            if (c.getId() == 0) {
                 dao.salvar(c);
                 req.getSession().setAttribute("msg", "Cliente cadastrado com sucesso!");
             } else {

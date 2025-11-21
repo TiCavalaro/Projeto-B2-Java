@@ -1,6 +1,13 @@
 <%@ page contentType="text/html; charset=UTF-8" %>
 <%@ page import="java.util.List, model.Cliente" %>
+
 <%
+    // Verifica se o usuário está logado
+    if(session.getAttribute("usuarioLogado") == null){
+        response.sendRedirect("login.jsp");
+        return;
+    }
+
     List<Cliente> clientes = (List<Cliente>) request.getAttribute("clientes");
 %>
 
@@ -10,7 +17,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Clientes - Loja Aquário</title>
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -24,9 +30,7 @@
             box-shadow: 0 8px 20px rgba(0,0,0,0.1);
             margin-top: 60px;
         }
-        h2 {
-            color: #00796b;
-        }
+        h2 { color: #00796b; }
         .btn-primary { background-color: #00acc1; border: none; }
         .btn-primary:hover { background-color: #00838f; }
         .btn-success { background-color: #26c6da; border: none; }
@@ -46,8 +50,8 @@
         <%-- Mensagem de sucesso ou erro --%>
         <%
             String msg = (String) request.getAttribute("msg");
+            if(msg != null) {
         %>
-        <% if(msg != null) { %>
             <div class="alert alert-info alert-dismissible fade show mt-3" role="alert">
                 <%= msg %>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -97,5 +101,4 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-
 </html>

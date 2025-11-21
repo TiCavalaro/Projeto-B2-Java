@@ -1,4 +1,11 @@
 <%@ page contentType="text/html; charset=UTF-8" %>
+<%@ page import="model.Cliente" %>
+
+<%
+    // Verifica se o usuário está logado
+    Cliente usuarioLogado = (Cliente) session.getAttribute("usuarioLogado");
+%>
+
 <!DOCTYPE html>
 <!-- Navbar global -->
 <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #b2ebf2;">
@@ -19,6 +26,15 @@
                 <li class="nav-item">
                     <a class="nav-link text-primary fw-semibold" href="#">Pedidos</a>
                 </li>
+
+                <% if (usuarioLogado != null) { %>
+                    <li class="nav-item">
+                        <span class="nav-link text-primary fw-semibold">Olá, <strong><%= usuarioLogado.getNome() %></strong></span>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-outline-danger btn-sm ms-2" href="logout.jsp">Sair</a>
+                    </li>
+                <% } %>
             </ul>
         </div>
     </div>
