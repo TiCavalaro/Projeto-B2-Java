@@ -2,7 +2,6 @@
 <%@ page import="model.Cliente" %>
 
 <%
-    // Verifica se o usuário está logado
     Cliente usuarioLogado = (Cliente) session.getAttribute("usuarioLogado");
 %>
 
@@ -17,17 +16,21 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
-                <li class="nav-item">
-                    <a class="nav-link text-primary fw-semibold" href="clientes?action=listar">Clientes</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-primary fw-semibold" href="#">Produtos</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-primary fw-semibold" href="#">Pedidos</a>
-                </li>
 
                 <% if (usuarioLogado != null) { %>
+                    <li class="nav-item">
+                        <a class="nav-link text-primary fw-semibold" href="clientes?action=listar">Clientes</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-primary fw-semibold" href="#">Produtos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-primary fw-semibold" href="#">Pedidos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-primary fw-semibold" href="categorias?action=listar">Categorias</a>
+                    </li>
+                    
                     <li class="nav-item">
                         <span class="nav-link text-primary fw-semibold">Olá, <strong><%= usuarioLogado.getNome() %></strong></span>
                     </li>
@@ -35,6 +38,7 @@
                         <a class="nav-link btn btn-outline-danger btn-sm ms-2" href="logout.jsp">Sair</a>
                     </li>
                 <% } %>
+
             </ul>
         </div>
     </div>

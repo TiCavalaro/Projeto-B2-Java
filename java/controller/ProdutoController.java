@@ -1,0 +1,100 @@
+package controller;
+
+import model.Produto;
+import model.ProdutoDAO;
+import model.Categoria;
+import model.CategoriaDAO;
+
+import javax.servlet.*;
+import javax.servlet.http.*;
+import javax.servlet.annotation.WebServlet;
+import java.io.IOException;
+import java.util.List;
+
+@WebServlet("/produtos")
+public class ProdutoController extends HttpServlet {
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
+
+        if(req.getSession().getAttribute("usuarioLogado") == null){
+            resp.sendRedirect("login.jsp");
+            return;
+        }
+
+        String action = req.getParameter("action");
+        ProdutoDAO dao = new ProdutoDAO();
+        CategoriaDAO catDao = new CategoriaDAO();
+
+        try {
+            if(action == null || action.equals("listar")){
+                List<Produto> produtos = dao.listar();
+                req.setAttribute("produtos", produtos);
+
+                String msg = (String) req.getSession().getAttribute("msg");
+                if(msg != null){
+                    req.setAttribute("msg", msg);
+                    req.getSession().removeAttribute("msg");
+                }
+
+                req.getRequestDispatcher("/produtos/list.jsp").forward(req, resp);
+
+            } else if(action.equals("editar")){
+                String idStr = req.getParameter("id");
+                Produto p = null;
+                if(idStr != null && !idStr.isEmpty()){
+                    p = dao.getProdutoById(Integer.parseInt(idStr));
+                }
+                List<Categoria> categorias = catDao.listar();
+                req.setAttribute("produto", p);
+                req.setAttribute("categorias", categorias);
+                req.getRequestDispatcher("/produtos/form.jsp").forward(req, resp);
+
+            } else if(action.equals("deletar")){
+                int id = Integer.parseInt(req.getParameter("id"));
+                dao.deletar(id);
+                req.getSession().setAttribute("msg", "Produto excluído com sucesso!");
+                resp.sendRedirect("produtos?action=listar");
+            }
+
+        } catch (Exception e){
+            req.getSession().setAttribute("msg", "Erro: " + e.getMessage());
+            resp.sendRedirect("produtos?action=listar");
+        }
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
+
+        if(req.getSession().getAttribute("usuarioLogado") == null){
+            resp.sendRedirect("login.jsp");
+            return;
+        }
+
+        Produto p = new Produto();
+        p.setId(req.getParameter("id") != null && !req.getParameter("id").isEmpty() ?
+                Integer.parseInt(req.getParameter("id")) : 0);
+        p.setNome(req.getParameter("nome"));
+        p.setPreco(Double.parseDouble(req.getParameter("preco")));
+        p.setEstoque(Integer.parseInt(req.getParameter("estoque")));
+        p.setCategoriaId(Integer.parseInt(req.getParameter("categoria_id")));
+
+        ProdutoDAO dao = new ProdutoDAO();
+
+        try {
+            if(p.getId() == 0){
+                dao.salvar(p);
+                req.getSession().setAttribute("msg", "Produto cadastrado com sucesso!");
+            } else {
+                dao.atualizar(p);
+                req.getSession().setAttribute("msg", "Produto atualizado com sucesso!");
+            }
+            resp.sendRedirect("produtos?action=listar");
+        } catch (Exception e){
+            req.getSession().setAttribute("msg", "Erro: " + e.getMessage());
+            resp.sendRedirect("produtos?action=listar");
+        }
+    }
+}

@@ -47,7 +47,6 @@
 
     <div class="container container-custom">
 
-        <%-- Mensagem de sucesso ou erro --%>
         <%
             String msg = (String) request.getAttribute("msg");
             if(msg != null) {
