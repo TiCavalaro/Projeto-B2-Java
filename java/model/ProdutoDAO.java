@@ -9,12 +9,13 @@ public class ProdutoDAO {
 
     public void salvar(Produto p) throws Exception {
         Connection conn = ConnectionFactory.getConnection();
-        String sql = "INSERT INTO produto (nome, preco, estoque, categoria_id) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO produto (nome, preco, estoque, categoria_id, imagem) VALUES (?, ?, ?, ?, ?)";
         PreparedStatement ps = conn.prepareStatement(sql);
         ps.setString(1, p.getNome());
         ps.setDouble(2, p.getPreco());
         ps.setInt(3, p.getEstoque());
         ps.setInt(4, p.getCategoriaId());
+        ps.setString(5, p.getImagem()); // se estiver usando imagem
         ps.executeUpdate();
         ps.close();
         conn.close();
@@ -22,13 +23,14 @@ public class ProdutoDAO {
 
     public void atualizar(Produto p) throws Exception {
         Connection conn = ConnectionFactory.getConnection();
-        String sql = "UPDATE produto SET nome=?, preco=?, estoque=?, categoria_id=? WHERE id=?";
+        String sql = "UPDATE produto SET nome=?, preco=?, estoque=?, categoria_id=?, imagem=? WHERE id=?";
         PreparedStatement ps = conn.prepareStatement(sql);
         ps.setString(1, p.getNome());
         ps.setDouble(2, p.getPreco());
         ps.setInt(3, p.getEstoque());
         ps.setInt(4, p.getCategoriaId());
-        ps.setInt(5, p.getId());
+        ps.setString(5, p.getImagem());
+        ps.setInt(6, p.getId());
         ps.executeUpdate();
         ps.close();
         conn.close();
@@ -46,7 +48,7 @@ public class ProdutoDAO {
 
     public Produto getProdutoById(int id) throws Exception {
         Connection conn = ConnectionFactory.getConnection();
-        String sql = "SELECT p.*, c.nome as categoria_nome FROM produto p JOIN categoria c ON p.categoria_id=c.id WHERE p.id=?";
+        String sql = "SELECT * FROM produto WHERE id=?";
         PreparedStatement ps = conn.prepareStatement(sql);
         ps.setInt(1, id);
         ResultSet rs = ps.executeQuery();
@@ -58,7 +60,7 @@ public class ProdutoDAO {
             p.setPreco(rs.getDouble("preco"));
             p.setEstoque(rs.getInt("estoque"));
             p.setCategoriaId(rs.getInt("categoria_id"));
-            p.setCategoriaNome(rs.getString("categoria_nome"));
+            p.setImagem(rs.getString("imagem"));
         }
         rs.close();
         ps.close();
@@ -67,11 +69,12 @@ public class ProdutoDAO {
     }
 
     public List<Produto> listar() throws Exception {
+        List<Produto> lista = new ArrayList<>();
         Connection conn = ConnectionFactory.getConnection();
-        String sql = "SELECT p.*, c.nome as categoria_nome FROM produto p JOIN categoria c ON p.categoria_id=c.id";
+        String sql = "SELECT p.*, c.nome AS categoria_nome FROM produto p " +
+                     "LEFT JOIN categoria c ON p.categoria_id = c.id";
         PreparedStatement ps = conn.prepareStatement(sql);
         ResultSet rs = ps.executeQuery();
-        List<Produto> lista = new ArrayList<>();
         while(rs.next()) {
             Produto p = new Produto();
             p.setId(rs.getInt("id"));
@@ -80,6 +83,7 @@ public class ProdutoDAO {
             p.setEstoque(rs.getInt("estoque"));
             p.setCategoriaId(rs.getInt("categoria_id"));
             p.setCategoriaNome(rs.getString("categoria_nome"));
+            p.setImagem(rs.getString("imagem"));
             lista.add(p);
         }
         rs.close();

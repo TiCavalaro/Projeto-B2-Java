@@ -7,11 +7,20 @@ import model.CategoriaDAO;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
+import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.List;
 
 @WebServlet("/produtos")
+@MultipartConfig(
+        fileSizeThreshold = 1024 * 1024,       
+        maxFileSize = 5 * 1024 * 1024,         
+        maxRequestSize = 10 * 1024 * 1024     
+)
 public class ProdutoController extends HttpServlet {
 
     @Override
@@ -53,12 +62,19 @@ public class ProdutoController extends HttpServlet {
 
             } else if(action.equals("deletar")){
                 int id = Integer.parseInt(req.getParameter("id"));
+                Produto p = dao.getProdutoById(id);
+                if(p != null && p.getImagem() != null){
+                    String uploadPath = getServletContext().getRealPath("/uploads/produtos");
+                    File file = new File(uploadPath, new File(p.getImagem()).getName());
+                    if(file.exists()) file.delete();
+                }
                 dao.deletar(id);
                 req.getSession().setAttribute("msg", "Produto excluído com sucesso!");
                 resp.sendRedirect("produtos?action=listar");
             }
 
         } catch (Exception e){
+            e.printStackTrace();
             req.getSession().setAttribute("msg", "Erro: " + e.getMessage());
             resp.sendRedirect("produtos?action=listar");
         }
@@ -76,29 +92,40 @@ public class ProdutoController extends HttpServlet {
         }
 
         Produto p = new Produto();
-        
+        ProdutoDAO dao = new ProdutoDAO();
+
+        // Dados do formulário
         String idParam = req.getParameter("id");
         p.setId(idParam != null && !idParam.trim().isEmpty() ?
                 Integer.parseInt(idParam.trim()) : 0);
 
-        String nome = req.getParameter("nome");
-        p.setNome(nome != null ? nome.trim() : "");
-
-        String precoParam = req.getParameter("preco");
-        p.setPreco(precoParam != null && !precoParam.trim().isEmpty() ?
-                Double.parseDouble(precoParam.trim()) : 0.0);
-
-        String estoqueParam = req.getParameter("estoque");
-        p.setEstoque(estoqueParam != null && !estoqueParam.trim().isEmpty() ?
-                Integer.parseInt(estoqueParam.trim()) : 0);
-
-        String categoriaParam = req.getParameter("categoria_id");
-        p.setCategoriaId(categoriaParam != null && !categoriaParam.trim().isEmpty() ?
-                Integer.parseInt(categoriaParam.trim()) : 0);
-
-        ProdutoDAO dao = new ProdutoDAO();
+        p.setNome(req.getParameter("nome") != null ? req.getParameter("nome").trim() : "");
+        p.setPreco(req.getParameter("preco") != null && !req.getParameter("preco").trim().isEmpty() ?
+                Double.parseDouble(req.getParameter("preco").trim()) : 0.0);
+        p.setEstoque(req.getParameter("estoque") != null && !req.getParameter("estoque").trim().isEmpty() ?
+                Integer.parseInt(req.getParameter("estoque").trim()) : 0);
+        p.setCategoriaId(req.getParameter("categoria_id") != null && !req.getParameter("categoria_id").trim().isEmpty() ?
+                Integer.parseInt(req.getParameter("categoria_id").trim()) : 0);
 
         try {
+            // Upload de imagem
+            Part filePart = req.getPart("imagem");
+            if(filePart != null && filePart.getSize() > 0){
+                String fileName = System.currentTimeMillis() + "_" + filePart.getSubmittedFileName();
+                String uploadPath = getServletContext().getRealPath("/uploads/produtos");
+                File uploadDir = new File(uploadPath);
+                if(!uploadDir.exists()) uploadDir.mkdirs();
+
+                File file = new File(uploadDir, fileName);
+                try(InputStream input = filePart.getInputStream()){
+                    Files.copy(input, file.toPath());
+                }
+                p.setImagem("uploads/produtos/" + fileName); // salva caminho relativo
+            } else if(p.getId() != 0){
+                Produto antigo = dao.getProdutoById(p.getId());
+                if(antigo != null) p.setImagem(antigo.getImagem());
+            }
+
             if(p.getId() == 0){
                 dao.salvar(p);
                 req.getSession().setAttribute("msg", "Produto cadastrado com sucesso!");
@@ -106,11 +133,13 @@ public class ProdutoController extends HttpServlet {
                 dao.atualizar(p);
                 req.getSession().setAttribute("msg", "Produto atualizado com sucesso!");
             }
+
             resp.sendRedirect("produtos?action=listar");
+
         } catch (Exception e){
+            e.printStackTrace();
             req.getSession().setAttribute("msg", "Erro: " + e.getMessage());
             resp.sendRedirect("produtos?action=listar");
         }
     }
-
 }

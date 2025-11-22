@@ -38,45 +38,51 @@
         .btn-secondary { background-color: #b2ebf2; color: #00796b; }
         .btn-secondary:hover { background-color: #81d4fa; }
         label { font-weight: 600; color: #00796b; }
+        img.preview { max-width: 150px; margin-top: 10px; }
     </style>
 </head>
 <body>
 
 <div class="container container-custom">
     <h1><%= (p != null && p.getId() > 0) ? "Editar Produto" : "Novo Produto" %></h1>
-    <form action="produtos" method="post">
-        <input type="hidden" name="id" value="<%= (p != null) ? p.getId() : "" %>"/>
+    <form action="produtos" method="post" enctype="multipart/form-data">
+    <input type="hidden" name="id" value="<%= (p != null) ? p.getId() : "" %>"/>
 
-        <div class="mb-3">
-            <label>Nome</label>
-            <input type="text" name="nome" class="form-control" value="<%= (p != null) ? p.getNome() : "" %>" required/>
-        </div>
+    <div class="mb-3">
+        <label>Nome</label>
+        <input type="text" name="nome" class="form-control" value="<%= (p != null) ? p.getNome() : "" %>" required/>
+    </div>
 
-        <div class="mb-3">
-            <label>Preço</label>
-            <input type="number" step="0.01" name="preco" class="form-control" value="<%= (p != null) ? p.getPreco() : "" %>" required/>
-        </div>
+    <div class="mb-3">
+        <label>Preço</label>
+        <input type="number" step="0.01" name="preco" class="form-control" value="<%= (p != null) ? p.getPreco() : "" %>" required/>
+    </div>
 
-        <div class="mb-3">
-            <label>Estoque</label>
-            <input type="number" name="estoque" class="form-control" value="<%= (p != null) ? p.getEstoque() : "" %>" required/>
-        </div>
+    <div class="mb-3">
+        <label>Estoque</label>
+        <input type="number" name="estoque" class="form-control" value="<%= (p != null) ? p.getEstoque() : "" %>" required/>
+    </div>
 
-        <div class="mb-3">
-            <label>Categoria</label>
-            <select name="categoria_id" class="form-select" required>
-                <option value="">Selecione...</option>
-                <% for(Categoria cat : categorias) { %>
-                    <option value="<%= cat.getId() %>" <%= (p != null && p.getCategoriaId() == cat.getId()) ? "selected" : "" %>>
-                        <%= cat.getNome() %>
-                    </option>
-                <% } %>
-            </select>
-        </div>
+    <div class="mb-3">
+        <label>Categoria</label>
+        <select name="categoria_id" class="form-select" required>
+            <option value="">Selecione...</option>
+            <% for(Categoria cat : categorias) { %>
+                <option value="<%= cat.getId() %>" <%= (p != null && p.getCategoriaId() == cat.getId()) ? "selected" : "" %>>
+                    <%= cat.getNome() %>
+                </option>
+            <% } %>
+        </select>
+    </div>
 
-        <button type="submit" class="btn btn-primary">Salvar</button>
-        <a href="produtos?action=listar" class="btn btn-secondary">Voltar</a>
-    </form>
+    <div class="mb-3">
+        <label>Imagem do Produto</label>
+        <input type="file" name="imagem" class="form-control" <%= (p == null) ? "required" : "" %> />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Salvar</button>
+    <a href="produtos?action=listar" class="btn btn-secondary">Voltar</a>
+</form>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
