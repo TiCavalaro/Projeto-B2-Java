@@ -62,6 +62,8 @@ public class CategoriaController extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
+        req.setCharacterEncoding("UTF-8");
+
         if (req.getSession().getAttribute("usuarioLogado") == null) {
             resp.sendRedirect("login.jsp");
             return;
@@ -88,4 +90,5 @@ public class CategoriaController extends HttpServlet {
             resp.sendRedirect("categorias?action=listar");
         }
     }
+
 }

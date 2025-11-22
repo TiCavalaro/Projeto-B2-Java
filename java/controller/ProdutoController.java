@@ -68,18 +68,36 @@ public class ProdutoController extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
+        // Garante que os parâmetros serão lidos como UTF-8
+        req.setCharacterEncoding("UTF-8");
+
+        // Verifica se o usuário está logado
         if(req.getSession().getAttribute("usuarioLogado") == null){
             resp.sendRedirect("login.jsp");
             return;
         }
 
+        // Cria o objeto Produto
         Produto p = new Produto();
-        p.setId(req.getParameter("id") != null && !req.getParameter("id").isEmpty() ?
-                Integer.parseInt(req.getParameter("id")) : 0);
-        p.setNome(req.getParameter("nome"));
-        p.setPreco(Double.parseDouble(req.getParameter("preco")));
-        p.setEstoque(Integer.parseInt(req.getParameter("estoque")));
-        p.setCategoriaId(Integer.parseInt(req.getParameter("categoria_id")));
+        
+        String idParam = req.getParameter("id");
+        p.setId(idParam != null && !idParam.trim().isEmpty() ?
+                Integer.parseInt(idParam.trim()) : 0);
+
+        String nome = req.getParameter("nome");
+        p.setNome(nome != null ? nome.trim() : "");
+
+        String precoParam = req.getParameter("preco");
+        p.setPreco(precoParam != null && !precoParam.trim().isEmpty() ?
+                Double.parseDouble(precoParam.trim()) : 0.0);
+
+        String estoqueParam = req.getParameter("estoque");
+        p.setEstoque(estoqueParam != null && !estoqueParam.trim().isEmpty() ?
+                Integer.parseInt(estoqueParam.trim()) : 0);
+
+        String categoriaParam = req.getParameter("categoria_id");
+        p.setCategoriaId(categoriaParam != null && !categoriaParam.trim().isEmpty() ?
+                Integer.parseInt(categoriaParam.trim()) : 0);
 
         ProdutoDAO dao = new ProdutoDAO();
 
@@ -97,4 +115,5 @@ public class ProdutoController extends HttpServlet {
             resp.sendRedirect("produtos?action=listar");
         }
     }
+
 }

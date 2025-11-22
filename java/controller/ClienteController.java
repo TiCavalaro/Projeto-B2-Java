@@ -70,6 +70,13 @@ public class ClienteController extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
+        req.setCharacterEncoding("UTF-8");
+
+        if (req.getSession().getAttribute("usuarioLogado") == null) {
+            resp.sendRedirect("login.jsp");
+            return;
+        }
+
         Cliente c = new Cliente();
         c.setId(req.getParameter("id") != null && !req.getParameter("id").isEmpty() ?
                 Integer.parseInt(req.getParameter("id")) : 0);
@@ -77,12 +84,6 @@ public class ClienteController extends HttpServlet {
         c.setEmail(req.getParameter("email"));
         c.setSenha(req.getParameter("senha"));
         c.setTelefone(req.getParameter("telefone"));
-
-        // --- SOMENTE BLOQUEIA SE EDITAR CLIENTE EXISTENTE ---
-        if (c.getId() != 0 && req.getSession().getAttribute("usuarioLogado") == null) {
-            resp.sendRedirect("login.jsp");
-            return;
-        }
 
         ClienteDAO dao = new ClienteDAO();
 
@@ -100,4 +101,5 @@ public class ClienteController extends HttpServlet {
             resp.sendRedirect("clientes?action=listar");
         }
     }
+
 }
