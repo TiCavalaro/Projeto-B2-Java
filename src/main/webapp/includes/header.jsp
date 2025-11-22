@@ -27,6 +27,7 @@
                         <li><a class="dropdown-item" href="clientes?action=listar">Clientes</a></li>
                         <li><a class="dropdown-item" href="produtos?action=listar">Produtos</a></li>
                         <li><a class="dropdown-item" href="categorias?action=listar">Categorias</a></li>
+                        <li><a class="dropdown-item" href="pedidos?action=listar">Pedidos</a></li>
                     </ul>
                 </li>
 

@@ -68,16 +68,13 @@ public class ProdutoController extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
-        // Garante que os parâmetros serão lidos como UTF-8
         req.setCharacterEncoding("UTF-8");
 
-        // Verifica se o usuário está logado
         if(req.getSession().getAttribute("usuarioLogado") == null){
             resp.sendRedirect("login.jsp");
             return;
         }
 
-        // Cria o objeto Produto
         Produto p = new Produto();
         
         String idParam = req.getParameter("id");
